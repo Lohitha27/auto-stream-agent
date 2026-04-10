@@ -1,0 +1,74 @@
+{
+  "documents": [
+    {
+      "id": "pricing_basic",
+      "category": "pricing",
+      "title": "Basic Plan",
+      "tags": ["pricing", "basic", "plan", "cost", "price", "cheap", "starter", "monthly", "fee"],
+      "content": "Basic Plan costs $29/month. It includes 10 videos per month, 720p resolution export, and access to standard editing tools. Best for creators just getting started."
+    },
+    {
+      "id": "pricing_pro",
+      "category": "pricing",
+      "title": "Pro Plan",
+      "tags": ["pricing", "pro", "plan", "cost", "price", "premium", "unlimited", "4k", "monthly", "fee", "advanced"],
+      "content": "Pro Plan costs $79/month. It includes unlimited videos, 4K resolution export, AI-powered automatic captions, priority 24/7 support, and real-time collaboration. Best for professional creators and agencies."
+    },
+    {
+      "id": "feature_editing",
+      "category": "features",
+      "title": "AI Auto-Editing",
+      "tags": ["feature", "edit", "editing", "auto", "ai", "automatic", "cut", "trim", "smart"],
+      "content": "AutoStream uses AI to automatically edit your raw footage. It detects scenes, removes silences, adds transitions, and produces a polished video with minimal manual effort."
+    },
+    {
+      "id": "feature_captions",
+      "category": "features",
+      "title": "AI Captions",
+      "tags": ["feature", "caption", "captions", "subtitle", "subtitles", "text", "transcript", "auto", "ai"],
+      "content": "AutoStream generates accurate AI-powered captions automatically. Available on the Pro Plan only. Supports multiple languages and allows custom styling."
+    },
+    {
+      "id": "feature_export",
+      "category": "features",
+      "title": "Multi-Platform Export",
+      "tags": ["feature", "export", "platform", "youtube", "instagram", "tiktok", "facebook", "linkedin", "format", "download"],
+      "content": "Export your videos optimized for YouTube, Instagram Reels, TikTok, Facebook, and LinkedIn in one click. AutoStream automatically adjusts aspect ratio and bitrate per platform."
+    },
+    {
+      "id": "feature_storage",
+      "category": "features",
+      "title": "Cloud Storage",
+      "tags": ["feature", "storage", "cloud", "save", "store", "backup", "file", "project"],
+      "content": "All your video projects are securely stored in the cloud. Access them from any device at any time. Basic Plan includes 50 GB storage; Pro Plan includes 500 GB."
+    },
+    {
+      "id": "feature_collab",
+      "category": "features",
+      "title": "Real-Time Collaboration",
+      "tags": ["feature", "collaboration", "team", "collab", "share", "together", "multi-user", "workspace"],
+      "content": "Pro Plan users can invite team members to collaborate on projects in real time. Leave comments, make edits simultaneously, and manage roles with granular permissions."
+    },
+    {
+      "id": "policy_refund",
+      "category": "policy",
+      "title": "Refund Policy",
+      "tags": ["refund", "money back", "cancel", "cancellation", "return", "policy", "guarantee"],
+      "content": "AutoStream offers a 7-day refund window from the date of purchase. No refunds are issued after 7 days. To request a refund, contact support@autostream.ai within the window."
+    },
+    {
+      "id": "policy_support",
+      "category": "policy",
+      "title": "Support Policy",
+      "tags": ["support", "help", "customer service", "contact", "24/7", "ticket", "chat", "email"],
+      "content": "Basic Plan users receive email support during business hours (Mon–Fri, 9am–6pm EST). Pro Plan users receive priority 24/7 live chat and email support with a 1-hour response SLA."
+    },
+    {
+      "id": "policy_trial",
+      "category": "policy",
+      "title": "Free Trial",
+      "tags": ["trial", "free", "demo", "test", "try", "sample", "no cost", "risk free"],
+      "content": "AutoStream offers a 7-day free trial on the Pro Plan — no credit card required. After the trial, you are automatically moved to the Basic Plan unless you upgrade."
+    }
+  ]
+}
