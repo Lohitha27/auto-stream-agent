@@ -41,52 +41,25 @@
  # ================= FIXED VERSION =================
 
 import json
-import math
-import os
-import random
-import re
-from collections import defaultdict
-from typing import Optional
-
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
 
 app = FastAPI()
 
-# ---------- DISABLED LLM (to avoid crash) ----------
-async def llm_detect_intent(user_message: str, history: list[dict]) -> Optional[str]:
-    return None  # always fallback
+# -------- LOAD KNOWLEDGE BASE --------
+with open("knowledge_base.json", "r") as f:
+    kb = json.load(f)
 
-# ---------- KEYWORD FALLBACK ----------
-INTENT_KEYWORDS = {
-    "greeting": ["hi", "hello", "hey"],
-    "pricing": ["price", "cost", "plan"],
-    "features": ["feature", "can it"],
-    "policy": ["refund", "cancel"],
-    "high_intent": ["buy", "subscribe", "start"],
-    "exit": ["bye", "exit"]
-}
+documents = kb["documents"]
 
-def keyword_detect_intent(user_input: str):
-    text = user_input.lower()
-    for intent, words in INTENT_KEYWORDS.items():
-        for w in words:
-            if w in text:
-                return intent
-    return "unknown"
+# -------- SESSION MEMORY --------
+sessions = {}
 
-# ---------- FIXED KB PATH ----------
-KB_PATH = "knowledge_base.json"
+# -------- LEAD CAPTURE FUNCTION --------
+def mock_lead_capture(name, email, platform):
+    print(f"Lead captured successfully: {name}, {email}, {platform}")
 
-_DOCUMENTS = []
-
-def load_knowledge_base():
-    global _DOCUMENTS
-    with open(KB_PATH, "r") as f:
-        data = json.load(f)
-    _DOCUMENTS = data["documents"]
-
-# ---------- BASIC CHAT ----------
+# -------- REQUEST MODEL --------
 class ChatRequest(BaseModel):
     session_id: str
     message: str
@@ -94,37 +67,110 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     session_id: str
     reply: str
-    intent: Optional[str]
+    intent: str
     lead_captured: bool
     session_ended: bool
 
-@app.on_event("startup")
-async def startup():
-    load_knowledge_base()
+# -------- SIMPLE RAG --------
+def get_rag_response(query):
+    query = query.lower()
+    for doc in documents:
+        if any(word in doc.lower() for word in query.split()):
+            return doc
+    return "Sorry, I couldn't find relevant info."
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest):
-    intent = keyword_detect_intent(req.message)
+# -------- INTENT DETECTION --------
+def detect_intent(text):
+    text = text.lower()
 
-    if intent == "pricing":
-        reply = "Pro Plan is $79/month with unlimited videos and 4K resolution."
-    elif intent == "features":
-        reply = "AutoStream offers AI captions, 4K editing, and automation tools."
-    elif intent == "policy":
-        reply = "No refunds after 7 days. Pro users get 24/7 support."
-    elif intent == "high_intent":
-        reply = "Great! Please share your name, email, and platform."
+    if any(x in text for x in ["hi", "hello", "hey"]):
+        return "greeting"
+    elif any(x in text for x in ["price", "plan", "cost"]):
+        return "pricing"
+    elif any(x in text for x in ["buy", "subscribe", "start"]):
+        return "high_intent"
     else:
-        reply = "Hello! Ask me about pricing, features, or plans."
+        return "general"
+
+# -------- MAIN CHAT API --------
+@app.post("/chat", response_model=ChatResponse)
+def chat(req: ChatRequest):
+    session_id = req.session_id
+    message = req.message
+
+    # Initialize session
+    if session_id not in sessions:
+        sessions[session_id] = {
+            "stage": None,
+            "name": None,
+            "email": None,
+            "platform": None
+        }
+
+    session = sessions[session_id]
+
+    # -------- LEAD FLOW --------
+    if session["stage"] == "ask_name":
+        session["name"] = message
+        session["stage"] = "ask_email"
+        return ChatResponse(session_id=session_id,
+                            reply="Please provide your email.",
+                            intent="lead_capture",
+                            lead_captured=False,
+                            session_ended=False)
+
+    elif session["stage"] == "ask_email":
+        session["email"] = message
+        session["stage"] = "ask_platform"
+        return ChatResponse(session_id=session_id,
+                            reply="Which platform do you create content on? (YouTube/Instagram)",
+                            intent="lead_capture",
+                            lead_captured=False,
+                            session_ended=False)
+
+    elif session["stage"] == "ask_platform":
+        session["platform"] = message
+
+        # CALL TOOL
+        mock_lead_capture(
+            session["name"],
+            session["email"],
+            session["platform"]
+        )
+
+        session["stage"] = None
+
+        return ChatResponse(session_id=session_id,
+                            reply="🎉 Thank you! You are successfully registered.",
+                            intent="lead_capture",
+                            lead_captured=True,
+                            session_ended=True)
+
+    # -------- NORMAL FLOW --------
+    intent = detect_intent(message)
+
+    if intent == "greeting":
+        reply = "Hello! How can I help you with AutoStream today?"
+
+    elif intent == "pricing":
+        reply = get_rag_response(message)
+
+    elif intent == "high_intent":
+        session["stage"] = "ask_name"
+        reply = "Great! Let's get you started. What is your name?"
+
+    else:
+        reply = get_rag_response(message)
 
     return ChatResponse(
-        session_id=req.session_id,
+        session_id=session_id,
         reply=reply,
         intent=intent,
         lead_captured=False,
         session_ended=False
     )
 
+# -------- ROOT --------
 @app.get("/")
 def root():
     return {"status": "ok"}
